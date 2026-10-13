@@ -1,0 +1,24 @@
+{
+  "world": "maze_escape",
+  "robot": "turtlebot4",
+  "time_limit": 300.0,
+  "footprint_radius": 0.23,
+  "bounds": [
+    -10,
+    10,
+    -10,
+    10
+  ],
+  "exit": {
+    "x": 10.01,
+    "y_min": -3.0,
+    "y_max": -1.0
+  },
+  "start": {
+    "x": -8.5,
+    "y": -8.5,
+    "z": 0.02,
+    "yaw": 0.0
+  },
+  "contact_gap": 0.25
+}

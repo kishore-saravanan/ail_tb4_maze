@@ -1,0 +1,8 @@
+# Python-only dependencies. Prefer Ubuntu/ROS packages for the running simulator.
+# ROS 2 rclpy, ROS messages, TF, and Gazebo bindings come from apt/rosdep,
+# not PyPI. See package.xml and README.md for the full runtime setup.
+PyQt5>=5.15,<6
+protobuf>=3.21,<5
+# Development and offline geometry validation:
+pytest>=7,<10
+matplotlib>=3.6,<4

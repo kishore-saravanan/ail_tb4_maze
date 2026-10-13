@@ -1,0 +1,3 @@
+#!/usr/bin/python3
+from ail_tb4_maze.referee import main
+main()
