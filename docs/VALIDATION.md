@@ -19,10 +19,12 @@ Validation performed on this machine using Ubuntu 24.04.5 LTS, ROS 2 Jazzy and G
 | Simulation pause | Same timeout trial | Two wall-clock seconds paused, zero simulation-time advancement |
 | Machine-readable scores | JSON files for three live cases | Passed; schema/status/reasons/elapsed/distance/collision fields checked |
 | Intended controller-interface isolation | Live topic/service discovery on ROS domain 62 | Only seven permitted interface topics plus ordinary ROS metadata; no privileged topics or services |
-| Deterministic scoring edge cases | 9 pytest cases via colcon | Passed; CTest + pytest summary reports 10 test entries, 0 failures/errors/skips |
+| Scoring and world generation | 9 scoring and 7 world-generation pytest cases via colcon | Passed; 16 pytest cases, 0 failures |
+| Live setup controls | Randomize, size/grid changes, preview synchronization, timer start/stop, failure/result display and reset | Passed; same simulator launch PID throughout |
+| Controller Start/Kill | GUI handlers and simulation-clock-driven placeholder | Passed; zero velocity published in domain 62 and process group stopped |
 | GUI visibility | Operator screenshots `gazebo_verified.png`, `rviz_verified.png` | Gazebo maze and RViz robot/LiDAR visible; launch opens both by default |
 
-Raw logs and per-case evidence are under `.runtime/results/runtime_collision/`, `.runtime/results/runtime_success/`, and `.runtime/results/runtime_timeout/`. `.runtime/results/geometry.json` records geometry statistics and the adapted world's checksum. `.runtime/results/interface_probe.json` is the earlier detailed late-subscriber interface inventory. Each runtime trial was isolated by restarting the infrastructure.
+Validation logs are generated locally and excluded from Git. Per-case evidence is stored under `.runtime/results/runtime_collision/`, `.runtime/results/runtime_success/`, and `.runtime/results/runtime_timeout/`. `.runtime/results/geometry.json` records geometry statistics and the adapted world's checksum. `.runtime/results/interface_probe.json` is the earlier detailed late-subscriber interface inventory. Each runtime trial was isolated by restarting the infrastructure.
 
 The collision trial's wheel odometry advanced further than the physical robot after wall contact. This is expected encoder integration while wheels slip, and confirms the controller is not being given the referee's ground-truth distance as odometry.
 
@@ -45,11 +47,3 @@ Full-footprint versus partial crossing, leaving outside the aperture, starting o
 - Full live tests need an unused challenge ROS domain / Gazebo partition. Do not start multiple instances using this fixed 61/62-domain configuration simultaneously.
 
 The environment is ready for the **supervised navigation challenge using the documented interface**, with the isolation limitation above. It is not an adversarially sandboxed competition service. Use a fresh navigation-agent chat restricted to `navigation_interface/` so it does not inherit the privileged preparation history.
-
-## Package migration validation (2026-10-13)
-
-Renamed to `ail_tb4_maze`; built successfully and launched with `ros2 launch ail_tb4_maze setup.launch.py` from `/tmp`. Gazebo, RViz and the setup window opened. The package's 9 scoring and 7 world-generation pytest cases passed (18 CTest/pytest summary entries). Geometry validation retained a reachable exit. The GUI controller handlers started the placeholder in domain 62, observed zero TwistStamped velocity with simulation clock input, and stopped its process group. A local Git repository uses branch `main`; no remote or commit is configured.
-
-Historical logs and checksums above precede the rename. Runtime evidence now lives under `.runtime/results/`; generated scenes are under `.runtime/state/`.
-
-After migration, live GUI regression passed: Randomize, size/grid changes, synchronized preview, timer start/stop, failure/result display and reset, retaining the same simulator launch PID. Evidence: `.runtime/results/gui_validation.json`.

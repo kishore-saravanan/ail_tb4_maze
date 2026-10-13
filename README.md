@@ -2,7 +2,15 @@
 
 ROS 2 package **ail_tb4_maze** for Ubuntu 24.04, ROS 2 Jazzy and Gazebo Harmonic. Includes Gazebo, RViz, live maze setup, a privileged referee and a restricted navigation interface. The supplied controller is a stationary placeholder: no maze-solving algorithm is included.
 
-## Launch on this machine
+## Screenshots
+
+![Outdoor maze in Gazebo with brick walls and green hedges](docs/realistic_gazebo.png)
+
+| Setup GUI | RViz robot and LiDAR view |
+| --- | --- |
+| <img src="docs/setup.png" alt="Maze setup GUI with size, grid, randomization and scoring controls" width="360"> | <img src="docs/rviz_verified.png" alt="TurtleBot 4 and LiDAR data in RViz" width="420"> |
+
+## Launch
 
 ```bash
 source /opt/ros/jazzy/setup.bash
@@ -70,4 +78,4 @@ colcon test --packages-select ail_tb4_maze
 colcon test-result --verbose
 ```
 
-See docs/VALIDATION.md for earlier runtime evidence; historical logs describe the package before its rename. Live maze replacement, preview synchronization, collision/exit scoring and the original 300-second timeout were exercised. Texture licenses are in docs/TEXTURE_ATTRIBUTION.md; maze provenance is in docs/MAZE_SELECTION.md and worlds/LICENSE.upstream. Project code uses Apache-2.0.
+See [docs/VALIDATION.md](docs/VALIDATION.md) for test coverage and known limitations. Live maze replacement, preview synchronization, collision/exit scoring and the original 300-second timeout were exercised. Texture licenses are in docs/TEXTURE_ATTRIBUTION.md; maze provenance is in docs/MAZE_SELECTION.md and worlds/LICENSE.upstream. Project code uses Apache-2.0.
