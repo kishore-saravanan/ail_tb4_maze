@@ -1,0 +1,6 @@
+#!/usr/bin/python3
+import sys
+from ail_tb4_maze.paths import NAVIGATION_ROOT
+sys.path.insert(0,str(NAVIGATION_ROOT))
+from controller import main
+main()

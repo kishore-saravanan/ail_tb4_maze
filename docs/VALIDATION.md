@@ -1,6 +1,6 @@
 # Executed validation and limitations
 
-Validation performed on this machine using Ubuntu 24.04.5 LTS, ROS 2 Jazzy and Gazebo Harmonic / Sim 8.15.0. Exact reused ROS package versions are retained in `installed_packages.txt`. No autonomous navigation solution was included or evaluated.
+Validation performed on this machine using Ubuntu 24.04.5 LTS, ROS 2 Jazzy and Gazebo Harmonic / Sim 8.15.0. Exact reused ROS package versions are retained in `installed_packages.txt`. Infrastructure checks below are separate from the autonomous wall-following experiments.
 
 | Requirement | Executed evidence | Outcome |
 |---|---|---|
@@ -21,7 +21,7 @@ Validation performed on this machine using Ubuntu 24.04.5 LTS, ROS 2 Jazzy and G
 | Intended controller-interface isolation | Live topic/service discovery on ROS domain 62 | Only seven permitted interface topics plus ordinary ROS metadata; no privileged topics or services |
 | Scoring and world generation | 9 scoring and 7 world-generation pytest cases via colcon | Passed; 16 pytest cases, 0 failures |
 | Live setup controls | Randomize, size/grid changes, preview synchronization, timer start/stop, failure/result display and reset | Passed; same simulator launch PID throughout |
-| Controller Start/Kill | GUI handlers and simulation-clock-driven placeholder | Passed; zero velocity published in domain 62 and process group stopped |
+| Controller Start/Kill | GUI controller process management | Process group starts and stops in domain 62 |
 | GUI visibility | Operator screenshots `gazebo_verified.png`, `rviz_verified.png` | Gazebo maze and RViz robot/LiDAR visible; launch opens both by default |
 
 Validation logs are generated locally and excluded from Git. Per-case evidence is stored under `.runtime/results/runtime_collision/`, `.runtime/results/runtime_success/`, and `.runtime/results/runtime_timeout/`. `.runtime/results/geometry.json` records geometry statistics and the adapted world's checksum. `.runtime/results/interface_probe.json` is the earlier detailed late-subscriber interface inventory. Each runtime trial was isolated by restarting the infrastructure.
@@ -34,16 +34,29 @@ Full-footprint versus partial crossing, leaving outside the aperture, starting o
 
 ## Known limitations
 
-- **Logical isolation only.** A deliberately noncompliant same-user controller or Codex session can access infrastructure files, switch ROS domains or use Gazebo Transport. Separate project context and contract compliance are required; filesystem/network/DDS access are not cryptographically enforced. The intended ROS interface was tested; hostile access prevention was not.
-- The official maze includes wide open regions. It has branching routes, dead ends and loops, but is not a uniformly narrow competition Micromouse maze. The future controller's ability to find the unknown exit within 300 seconds remains untested by design.
+- **Logical isolation only.** A deliberately noncompliant same-user process can access infrastructure files, switch ROS domains or use Gazebo Transport. ROS domains separate traffic logically; filesystem/network/DDS access is not cryptographically enforced. The intended ROS interface was tested; hostile access prevention was not.
+- The official maze includes wide open regions. It has branching routes, dead ends and loops, but is not a uniformly narrow competition Micromouse maze. Wall following may loop around disconnected obstacles or exceed the time budget.
 - Whole-footprint success uses a conservative circular 0.23 m radius approximation rather than exact oriented mesh intersection. This prevents premature scoring at the opening and may require slightly more outward travel.
 - Contact counts are contact **episodes**, not impulsive force measurements. Multiple distinct wall links can count separately; long continuous contact is one event per wall. The live physical collision case verified counting, not every possible multi-wall impact configuration.
 - Distance is sampled planar ground-truth travel, so microscopic physics jitter may accumulate and fast motion between samples can be slightly underestimated. Nominal model-pose publication is 62 Hz.
 - IMU and LiDAR inherit the official idealized simulation sensor definitions. No additional calibrated real-world noise was introduced.
 - Operator RViz displays passive wheel suspension joints using default values merged with live encoder wheel angles. These extra visual transforms are filtered out of the controller interface. The robot physics itself retains the original suspension model.
 - Gazebo emits EGL/NVIDIA driver warnings on this system, but sensor data and the visible rendering were verified. No graphics drivers or system configuration were changed. The wheel controller logs normal braking warnings while no controller is publishing commands.
-- Trial results are saved locally; there is no trajectory/video recording pipeline configured yet. Record the visible windows with the user's existing recording setup.
-- Scoring completion does not forcibly terminate a future controller process. The controller must honor its time budget and publish zero on shutdown; the referee records a terminal score once.
+- Trial results and controller telemetry are saved locally. The optional renderer exports a LiDAR/decision replay; record Gazebo separately for the simulation footage.
+- The gateway blocks commands after trial completion. The experiment helper also stops the solver process; the GUI provides Stop solver.
 - Full live tests need an unused challenge ROS domain / Gazebo partition. Do not start multiple instances using this fixed 61/62-domain configuration simultaneously.
 
-The environment is ready for the **supervised navigation challenge using the documented interface**, with the isolation limitation above. It is not an adversarially sandboxed competition service. Use a fresh navigation-agent chat restricted to `navigation_interface/` so it does not inherit the privileged preparation history.
+The environment is ready for the **supervised navigation challenge using the documented interface**, with the isolation limitation above. It is not an adversarially sandboxed competition service.
+
+## Autonomous wall-following experiment — 2026-10-18
+
+The final controller passed 10 wall-following tests, alongside 9 scoring and 7 world-generation tests (26 pytest cases; colcon includes 3 additional CTest entries). The GUI Start/Stop process handlers and the MP4 renderer were exercised. The local source hashes and reproducible parameters are retained in [experiment_results.json](experiment_results.json).
+
+| Layout | Maze | Outcome | Simulated time | Ground-truth distance | Recorded collision episodes |
+| --- | --- | --- | --- | --- | --- |
+| Official | 20 × 20 m | Timeout | 300.005 s | 45.83 m | 0 |
+| Random, seed 7 | 12 × 12 m, 6 × 6 cells | Timeout | 300.015 s | 34.58 m | 0 |
+
+These were headless regression trials with target real-time factor 3; the time budget remained 300 simulated seconds. Both mazes were used during development. This is not a blind evaluation, a general success rate, or proof of collision avoidance. The controller made slow/stalled progress at some corners and used local reverse recovery. **It did not escape these two trials.**
+
+The experiment short should show the actual timeout, or record a new separately specified trial and report its observed outcome. Do not infer that every wall-following implementation would fail these mazes: this result combines the chosen rule, this controller's tuning and the simulator dynamics.

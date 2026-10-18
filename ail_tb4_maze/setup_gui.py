@@ -65,8 +65,8 @@ class Setup(QtWidgets.QMainWindow):
         layout.addWidget(score)
         controller_box=QtWidgets.QGroupBox('Navigation controller');controller_layout=QtWidgets.QVBoxLayout(controller_box)
         self.controller_path=QtWidgets.QLineEdit(str(NAVIGATION_ROOT/'controller.py'));controller_layout.addWidget(self.controller_path)
-        controller_row=QtWidgets.QHBoxLayout();self.controller_start=QtWidgets.QPushButton('Start node');self.controller_kill=QtWidgets.QPushButton('Kill node');controller_row.addWidget(self.controller_start);controller_row.addWidget(self.controller_kill);controller_layout.addLayout(controller_row)
-        self.controller_status=QtWidgets.QLabel('Stopped · placeholder publishes zero velocity');controller_layout.addWidget(self.controller_status)
+        controller_row=QtWidgets.QHBoxLayout();self.controller_start=QtWidgets.QPushButton('Start solver');self.controller_kill=QtWidgets.QPushButton('Stop solver');controller_row.addWidget(self.controller_start);controller_row.addWidget(self.controller_kill);controller_layout.addLayout(controller_row)
+        self.controller_status=QtWidgets.QLabel('Stopped · right-hand wall follower');controller_layout.addWidget(self.controller_status)
         self.controller_start.clicked.connect(self.start_controller);self.controller_kill.clicked.connect(self.stop_controller);layout.addWidget(controller_box)
         self.state_label=QtWidgets.QLabel('Preparing environment…');self.state_label.setWordWrap(True);layout.addWidget(self.state_label)
         bottom=QtWidgets.QHBoxLayout();self.launch=QtWidgets.QPushButton('Launch environment');self.rviz=QtWidgets.QPushButton('Open RViz');self.folder=QtWidgets.QPushButton('Results folder');bottom.addWidget(self.launch);bottom.addWidget(self.rviz);bottom.addWidget(self.folder);layout.addLayout(bottom)
@@ -154,7 +154,7 @@ class Setup(QtWidgets.QMainWindow):
         if not path.is_file():self.message('Controller script does not exist: '+str(path));return
         env=dict(os.environ,ROS_DOMAIN_ID='62',GZ_PARTITION='ai_legion_navigation')
         self.controller_log=(RESULTS/'controller.log').open('w')
-        self.controller=subprocess.Popen(['/usr/bin/python3',str(path),'--ros-args','-p','use_sim_time:=true'],cwd=str(NAVIGATION_ROOT),env=env,stdout=self.controller_log,stderr=subprocess.STDOUT,start_new_session=True)
+        self.controller=subprocess.Popen(['/usr/bin/python3',str(path),'--ros-args','-p','use_sim_time:=true','-p',f'recording_path:={RESULTS}/exploration_{time.time_ns()}.jsonl'],cwd=str(NAVIGATION_ROOT),env=env,stdout=self.controller_log,stderr=subprocess.STDOUT,start_new_session=True)
         self.update_buttons()
     def stop_controller(self):
         if self.controller and self.controller.poll() is None:

@@ -1,6 +1,6 @@
 # AI Legion TurtleBot 4 Maze Challenge
 
-ROS 2 package **ail_tb4_maze** for Ubuntu 24.04, ROS 2 Jazzy and Gazebo Harmonic. Includes Gazebo, RViz, live maze setup, a privileged referee and a restricted navigation interface. The supplied controller is a stationary placeholder: no maze-solving algorithm is included.
+ROS 2 package **ail_tb4_maze** for Ubuntu 24.04, ROS 2 Jazzy and Gazebo Harmonic. Includes Gazebo, RViz, live maze setup, a privileged referee and a restricted navigation interface. The robot autonomously follows its right-hand wall using LiDAR, with no preloaded map or exit coordinates.
 
 ## Screenshots
 
@@ -40,7 +40,7 @@ ros2 launch ail_tb4_maze setup.launch.py
 - Choose the official layout or a random grid maze. Set the square maze side (12–40 m) and grid cells. Press Enter or Apply size / grid after typing, or use Randomize. The preview labels the applied physical dimensions. Changes replace walls live without reopening Gazebo and reset the trial and controller.
 - The 2D preview follows the successfully applied layout. Ground uses the preferred green terrain texture; walls use brick and shrubs use green hedge textures.
 - Start timer begins the 300 simulated-second trial. Collision episodes, distance, pass/fail and the saved JSON result appear in the window.
-- Edit `navigation_interface/controller.py`, or enter another Python script path. Start node launches it in ROS domain 62; Kill node stops its process group. Start the timer before starting your algorithm. Commands are gated by the active trial.
+- Edit `navigation_interface/controller.py`, or enter another Python script path. Start solver launches it in ROS domain 62; Stop solver stops its process group. Start the timer before starting your algorithm. Commands are gated by the active trial.
 - Reset robot / trial clears the attempt and stops the controller. Restart the controller for each attempt.
 
 ## Repository layout
@@ -48,7 +48,7 @@ ros2 launch ail_tb4_maze setup.launch.py
 ```text
 ail_tb4_maze/          Python infrastructure and GUI
 launch/               setup.launch.py and challenge.launch.py
-navigation_interface/ controller.py and optional AI algorithm contract
+navigation_interface/ LiDAR wall follower and ROS controller
 assets/               local texture assets
 worlds/, config/      simulator and referee configuration
 test/, scripts/       validation and development helpers
@@ -59,17 +59,28 @@ docs/                 provenance, attribution and validation notes
 
 Normal ROS workspace `build/`, `install/`, and `log/` directories remain at workspace level. Project scripts, documentation and runtime files live inside this package. For an installed package without a source checkout, runtime files use `$XDG_STATE_HOME/ail_tb4_maze` (default `~/.local/state/ail_tb4_maze`). Override with the `runtime_dir` setup launch argument or `AIL_TB4_MAZE_RUNTIME_DIR`.
 
-## Want your AI to implement the algorithm?
+## Can my robot escape the maze?
 
-Use [navigation_interface/CONTRACT.md](navigation_interface/CONTRACT.md) as the task brief and [controller.py](navigation_interface/controller.py) as the starting script. Give only the `navigation_interface/` directory to your AI in a fresh chat or isolated project. Ask it to implement a sensor-based maze escape algorithm inside `compute_velocity()` following the contract.
+The experiment uses a **right-hand wall-following algorithm**: keep the wall on the right, turn left when blocked, and turn right into openings. LiDAR feedback controls steering and checks clearance before motion. Wheel odometry measures short acquisition and corner movements; ongoing wall following uses LiDAR.
 
-Keep world files, maze configuration, setup previews, referee results and the prior infrastructure conversation outside that AI context. The operator runs the setup GUI, starts the timer and uses Start node to run the resulting script. The placeholder itself does not solve the maze.
+This is reactive robot navigation, not a coding-agent contest or a trained neural network. Wall following can loop around disconnected obstacles and is not guaranteed to finish every maze within the 300-second budget. See [the controller guide](navigation_interface/README.md).
+
+Current accelerated regression result (target real-time factor 3): the official 20 m maze and random 12 m maze (seed 7) both timed out at 300 simulated seconds with zero recorded collision episodes. **No escape is claimed.** See [results and limitations](docs/VALIDATION.md#autonomous-wall-following-experiment--2026-10-18).
+
+Run a repeatable scored experiment:
+
+```bash
+python3 scripts/run_experiment.py --preset official --rtf 1
+python3 scripts/run_experiment.py --preset random --size 12 --cells 6 --seed 7 --rtf 1
+```
+
+Add `--visible` to record Gazebo. The helper saves scene parameters, LiDAR/decision telemetry and the actual referee result. See [the short-video plan](docs/VIDEO_EXPERIMENT.md) for the storyboard and motion-graphics workflow.
 
 ## Navigation and scoring
 
-Read [the navigation contract](navigation_interface/CONTRACT.md) before implementing a controller. Only LiDAR, wheel odometry, IMU, allowed TF and simulation clock are supplied; velocity commands use TwistStamped. Infrastructure uses ROS domain 61; a gateway relays permitted data to domain 62. The referee measures simulation time, ground-truth travel, wall-contact episodes and full-footprint exit crossing. Larger layouts may require longer routes than a controller can finish in 300 seconds; geometric reachability does not guarantee completion within the time budget.
+See [the sensor and controller interface](navigation_interface/README.md). Only LiDAR, wheel odometry, IMU, allowed TF and simulation clock are supplied; velocity commands use TwistStamped. Infrastructure uses ROS domain 61; a gateway relays permitted data to domain 62. The referee measures simulation time, ground-truth travel, wall-contact episodes and full-footprint exit crossing. Larger layouts may require longer routes than a controller can finish in 300 seconds; geometric reachability does not guarantee completion within the time budget.
 
-Isolation is a challenge rule and logical separation, not an OS security sandbox. For a future AI implementation, provide only the navigation_interface directory in a fresh chat, without infrastructure files, preview images or this setup conversation.
+Isolation is a challenge rule and logical separation, not an OS security sandbox. The solver uses only the sensor-side ROS domain; the referee uses simulator ground truth to score the outcome.
 
 ## Validation and attribution
 
