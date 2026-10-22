@@ -20,6 +20,7 @@ from wall_follower import Decision, WallFollower
 
 
 def yaw(q):
+
     return math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z))
 
 
@@ -90,6 +91,7 @@ class Controller(Node):
             or time.monotonic() - self.scan_wall > 0.5
         ):
             self.publish(0.0, 0.0)
+
             return
         try:
             t = self.tf.lookup_transform(
@@ -97,6 +99,7 @@ class Controller(Node):
             ).transform
         except TransformException:
             self.publish(0.0, 0.0)
+
             return
         s = self.scan
         q = t.rotation
@@ -151,6 +154,7 @@ class Controller(Node):
         if now - self.status_time >= 0.25:
 
             def finite(x):
+
                 return float(x) if math.isfinite(x) else None
 
             event = dict(

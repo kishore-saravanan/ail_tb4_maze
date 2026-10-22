@@ -44,4 +44,5 @@ def fuse_rays(grid, resolution, origin, sensor, rays, hits):
     ).astype(int)
     if len(endpoint_indices):
         out[endpoint_indices[:, 1], endpoint_indices[:, 0]] = 100
+
     return out, tuple(new_origin)

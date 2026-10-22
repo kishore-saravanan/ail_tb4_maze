@@ -63,10 +63,12 @@ def main():
     origin = [None]
 
     def yaw(q):
+
         return math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z))
 
     def rebase(position, orientation):
         if origin[0] is None:
+
             return
         ox, oy, a = origin[0]
         dx = position.x - ox
@@ -85,12 +87,14 @@ def main():
         if origin[0] is None:
             origin[0] = (p.x, p.y, yaw(q))
         rebase(p, q)
+
         return msg
 
     relay(Odometry, "/odom", "/odom", qos_profile_sensor_data, local_odom)
 
     def imu_frame(msg):
         msg.header.frame_id = "imu_link"
+
         return msg
 
     relay(Imu, "/imu", "/imu", qos_profile_sensor_data, imu_frame)
@@ -107,6 +111,7 @@ def main():
                     continue
                 rebase(t.transform.translation, t.transform.rotation)
             transforms.append(t)
+
         return TFMessage(transforms=transforms)
 
     relay(TFMessage, "/tf", "/tf", 100, filtered)
@@ -115,6 +120,7 @@ def main():
     def static_filtered(msg):
         for t in filtered(msg).transforms:
             static_edges[(t.header.frame_id, t.child_frame_id)] = t
+
         return TFMessage(transforms=list(static_edges.values()))
 
     relay(
@@ -156,6 +162,7 @@ def main():
             stop()
         res.success = True
         res.message = "Interface enabled" if req.data else "Commands inhibited"
+
         return res
 
     def reset(req, res):
@@ -163,6 +170,7 @@ def main():
         stop()
         res.success = True
         res.message = "Local wheel-odometry origin reset"
+
         return res
 
     holders.append(source.create_service(SetBool, "/interface/enable", enable))
@@ -170,10 +178,12 @@ def main():
 
     def command(msg):
         if not enabled[0] or not trial_active[0]:
+
             return
         v = msg.twist.linear.x
         w = msg.twist.angular.z
         if not math.isfinite(v) or not math.isfinite(w):
+
             return
         out = TwistStamped()
         out.header.stamp = source.get_clock().now().to_msg()

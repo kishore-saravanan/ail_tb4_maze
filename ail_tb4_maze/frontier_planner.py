@@ -17,12 +17,14 @@ def frontier_goal_active(grid, resolution, origin, goal, radius=0.30):
     Outside the current map is unknown, matching frontier selection below.
     """
     if goal is None:
+
         return False
     cells = np.asarray(grid)
     r = math.floor((goal[1] - origin[1]) / resolution)
     c = math.floor((goal[0] - origin[0]) / resolution)
     h, w = cells.shape
     if not (0 <= r < h and 0 <= c < w):
+
         return False
     extent = math.ceil(radius / resolution)
     r0, r1 = max(0, r - extent), min(h, r + extent + 1)
@@ -34,8 +36,10 @@ def frontier_goal_active(grid, resolution, origin, goal, radius=0.30):
     labels, _ = ndimage.label(free)
     component = labels[r - r0, c - c0]
     if not component:
+
         return False
     adjacent = ndimage.binary_dilation(cells < 0, np.ones((3, 3)), border_value=1)
+
     return bool(np.any((labels == component) & adjacent[r0:r1, c0:c1]))
 
 
@@ -64,14 +68,17 @@ def choose_frontier(
     r = int((robot[1] - origin[1]) / resolution)
     c = int((robot[0] - origin[0]) / resolution)
     if not (0 <= r < h and 0 <= c < w):
+
         return (None, [], []) if return_path else (None, [])
     if not safe[r, c]:
         rows, cols = np.nonzero(safe)
         if not len(rows):
+
             return (None, [], []) if return_path else (None, [])
         distance = (rows - r) ** 2 + (cols - c) ** 2
         i = int(distance.argmin())
         if distance[i] * resolution**2 > 0.25**2:
+
             return (None, [], []) if return_path else (None, [])
         r, c = int(rows[i]), int(cols[i])
     unknown = cells < 0
@@ -100,6 +107,7 @@ def choose_frontier(
     history = cKDTree(history_points) if len(history_points) else None
     labels, count = ndimage.label(frontier, np.ones((3, 3)))
     if not count:
+
         return (None, [], []) if return_path else (None, [])
     sizes = np.bincount(labels.ravel())
     frontier &= sizes[labels] * resolution >= 0.15
@@ -131,6 +139,7 @@ def choose_frontier(
         targets.extend([b, a])
         weights.extend([cost, cost])
     if not sources:
+
         return (None, [], []) if return_path else (None, [])
     graph = sparse.csr_matrix(
         (np.concatenate(weights), (np.concatenate(sources), np.concatenate(targets))),
@@ -190,14 +199,17 @@ def choose_frontier(
         ) - 0.6 * math.log1p(len(rr) * resolution)
         candidates.append((score, point, int(rr[i] * w + cc[i])))
     if not candidates:
+
         return (None, centers, []) if return_path else (None, centers)
     _, point, node = min(candidates)
     if not return_path:
+
         return point, centers
     route = [node]
     while node != r * w + c:
         node = int(predecessors[node])
         if node < 0:
+
             return None, centers, []
         route.append(node)
     route.reverse()
@@ -208,6 +220,7 @@ def choose_frontier(
         )
         for n in route
     ]
+
     return point, centers, path
 
 
@@ -216,9 +229,12 @@ def goal_is_safe(grid, resolution, origin, point, clearance=None):
     r = math.floor((point[1] - origin[1]) / resolution)
     c = math.floor((point[0] - origin[0]) / resolution)
     if not (0 <= r < cells.shape[0] and 0 <= c < cells.shape[1]):
+
         return False
     if not 0 <= cells[r, c] < 30:
+
         return False
     if clearance is None:
         clearance = ndimage.distance_transform_edt(cells < 50) * resolution
+
     return bool(clearance[r, c] >= 0.27)

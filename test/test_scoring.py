@@ -14,6 +14,7 @@ C["time_limit"] = 300.0  # Explicit deadline for the historical bounded-trial ca
 def trial():
     s = Scoring(C)
     s.start(20, (9, -2, 0))
+
     return s
 
 

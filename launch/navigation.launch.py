@@ -83,6 +83,7 @@ def generate_launch_description():
     )
 
     def required_exit(event, context):
+
         return (
             []
             if context.is_shutdown
@@ -96,4 +97,5 @@ def generate_launch_description():
                 OnProcessExit(target_action=node, on_exit=required_exit)
             )
         )
+
     return LaunchDescription(actions)

@@ -23,10 +23,12 @@ class Scoring:
 
     def start(self, now, pose):
         if self.status != "waiting":
+
             return False
         self.status = "running"
         self.started = now
         self.last = (now, *pose)
+
         return True
 
     def finish(self, status, reason):
@@ -43,13 +45,16 @@ class Scoring:
 
     def update(self, now, x, y, z=0.0):
         if self.status != "running":
+
             return
         self.tick(now)
         if self.status != "running":
+
             return
         old_t, old_x, old_y, old_z = self.last
         if now < old_t:
             self.finish("failure", "simulation_time_reversed")
+
             return
         self.distance += math.hypot(x - old_x, y - old_y)
         self.pose_samples += 1
@@ -82,6 +87,7 @@ class Scoring:
 
     def contact(self, now, pair):
         if self.status != "running":
+
             return
         previous = self.contact_times.get(pair, -math.inf)
         if now - previous > self.c["contact_gap"]:
@@ -89,6 +95,7 @@ class Scoring:
         self.contact_times[pair] = now
 
     def result(self):
+
         return dict(
             schema_version=1,
             status=self.status,

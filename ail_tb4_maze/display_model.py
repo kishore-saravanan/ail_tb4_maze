@@ -26,4 +26,5 @@ def fixed_display_model(description):
                 if tag in ("parent", "child"):
                     element.set("link", "display_" + element.attrib["link"])
                 fixed.append(element)
+
     return ET.tostring(robot, encoding="unicode")

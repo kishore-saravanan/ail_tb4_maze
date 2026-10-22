@@ -39,6 +39,7 @@ class CustomController(Node):
         Returning zero is intentional. A replacement policy must handle scan
         geometry, the robot's footprint and collision avoidance before moving.
         """
+
         return 0.0, 0.0
 
     def publish(self, linear, angular):
@@ -52,6 +53,7 @@ class CustomController(Node):
     def tick(self):
         if self.scan is None or time.monotonic() - self.last_scan > 0.5:
             self.publish(0.0, 0.0)
+
             return
         self.publish(*self.decide_velocity(self.scan))
 

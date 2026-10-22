@@ -9,6 +9,7 @@ from ail_tb4_maze.paths import RUNTIME_ROOT
 
 
 def generate_launch_description():
+
     return LaunchDescription(
         [
             DeclareLaunchArgument(

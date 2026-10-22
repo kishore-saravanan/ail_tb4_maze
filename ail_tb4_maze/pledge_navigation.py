@@ -87,6 +87,7 @@ class PledgeExplorer(DirectExplorer):
 
     def publish_debug(self):
         if self.pose is None:
+
             return
         text = Marker()
         text.header.frame_id = "map"
@@ -154,10 +155,12 @@ class PledgeExplorer(DirectExplorer):
             or not self.update_pose()
         ):
             self.publish(0.0, 0.0)
+
             return
         points = self.points()
         if len(points) < 12:
             self.publish(0.0, 0.0)
+
             return
         steering = points
         # Transform the most recent proof into the current body frame. It only

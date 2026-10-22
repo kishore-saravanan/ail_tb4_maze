@@ -11,6 +11,7 @@ from pathlib import Path
 def box_mesh(path, sx, sy, sz, tile=1.0, texture=None, assets=None):
     """Six planar faces with world-sized UVs: bricks do not stretch on long walls."""
     if path.exists():
+
         return
     x, y, z = sx / 2, sy / 2, sz / 2
     faces = [
@@ -87,6 +88,7 @@ def wall(model, name, x, y, sx, sy, height=1.3):
     contact = E.SubElement(sensor, "contact")
     E.SubElement(contact, "collision").text = name + "_collision"
     E.SubElement(contact, "topic").text = "/challenge/wall_contacts"
+
     return link
 
 
@@ -328,6 +330,7 @@ def generate(pkg, state, size=20.0, cells=10, seed=42, preset="random"):
     E.indent(tree)
     tree.write(state / "world.sdf", encoding="unicode", xml_declaration=True)
     (state / "challenge.json").write_text(json.dumps(c, indent=2) + "\n")
+
     return c
 
 
@@ -347,6 +350,7 @@ def validate(c):
                 bins.setdefault((i, j), []).append(box)
 
     def clear(x, y):
+
         return all(
             math.hypot(max(a - x, 0, x - b), max(d - y, 0, y - e)) > radius
             for a, b, d, e in bins.get((math.floor(x), math.floor(y)), [])
@@ -356,9 +360,11 @@ def validate(c):
     ny = round((top - bot) / resolution)
 
     def pt(i, j):
+
         return lo + i * resolution, bot + j * resolution
 
     def free(i, j):
+
         return 0 <= i <= nx and 0 <= j <= ny and clear(*pt(i, j))
 
     start = tuple(

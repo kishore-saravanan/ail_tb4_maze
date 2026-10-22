@@ -47,10 +47,12 @@ def spin(predicate, limit=20):
 
 def now():
     c = data["clock"].clock
+
     return c.sec + c.nanosec / 1e9
 
 
 def status():
+
     return json.loads((ROOT / ".runtime/results/status.json").read_text())
 
 

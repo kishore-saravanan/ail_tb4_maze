@@ -131,6 +131,7 @@ class Preview(QtWidgets.QWidget):
         p.setRenderHint(QtGui.QPainter.Antialiasing)
         p.fillRect(self.rect(), QtGui.QColor("#17242c"))
         if not self.config:
+
             return
         c = self.config
         lo, hi, bot, top = c["bounds"]
@@ -140,6 +141,7 @@ class Preview(QtWidgets.QWidget):
         oy = 13
 
         def point(x, y):
+
             return QtCore.QPointF(ox + (x - lo) * k, oy + (top - y) * k)
 
         p.setPen(QtCore.Qt.NoPen)
@@ -162,6 +164,7 @@ class ExistingProcess:
         self.pid = pid
 
     def poll(self):
+
         return None if Path(f"/proc/{self.pid}").exists() else 0
 
 
@@ -384,6 +387,7 @@ class Setup(QtWidgets.QMainWindow):
     def task(self, fn, done):
         if self.busy:
             self.queued = True
+
             return
         self.busy = True
         self.update_buttons()
@@ -435,6 +439,7 @@ class Setup(QtWidgets.QMainWindow):
                 text=True,
                 timeout=15,
             )
+
             return ros_service("/referee/start")
 
         self.task(work, self.message)
@@ -482,6 +487,7 @@ class Setup(QtWidgets.QMainWindow):
     def apply(self):
         if self.busy:
             self.queued = True
+
             return
         size = self.size.value()
         cells = self.cells.value()
@@ -500,6 +506,7 @@ class Setup(QtWidgets.QMainWindow):
             else:
                 for name in ["world.sdf", "challenge.json"]:
                     (STATE / name).write_bytes((draft / name).read_bytes())
+
             return c
 
         self.task(work, self.applied)
@@ -528,6 +535,7 @@ class Setup(QtWidgets.QMainWindow):
             self.message(
                 "Connected to the running environment. Live updates are ready."
             )
+
             return
         (STATE / "live_models.json").write_text(
             json.dumps(self.current["scene_models"])
@@ -559,6 +567,7 @@ class Setup(QtWidgets.QMainWindow):
 
     def reset_trial(self):
         if self.current is None:
+
             return
         self.stop_controller()
         # Reapply current scene to safely stop, reposition and clear the referee.
@@ -570,10 +579,12 @@ class Setup(QtWidgets.QMainWindow):
 
     def start_controller(self):
         if self.controller and self.controller.poll() is None:
+
             return
         path = Path(self.controller_path.text()).expanduser().resolve()
         if not path.is_file():
             self.message("Controller script does not exist: " + str(path))
+
             return
         env = dict(os.environ, ROS_DOMAIN_ID="62", GZ_PARTITION="ai_legion_navigation")
         self.controller_log = (RESULTS / "controller.log").open("w")
@@ -662,11 +673,13 @@ class Setup(QtWidgets.QMainWindow):
         if self.proc is not None and self.proc.poll() is not None:
             self.result.setText("ENVIRONMENT STOPPED")
             self.update_buttons()
+
             return
         try:
             s = json.loads((RESULTS / "status.json").read_text())
         except (OSError, ValueError):
             self.update_buttons()
+
             return
         self.latest_status = s
         t = s["elapsed_sim_seconds"]
@@ -743,6 +756,7 @@ class Setup(QtWidgets.QMainWindow):
         if self.busy:
             self.message("Wait for the live update to finish before closing.")
             event.ignore()
+
             return
         self.cleanup()
         event.accept()

@@ -18,6 +18,7 @@ from matplotlib.patches import Circle
 
 
 def grid(record):
+
     return np.frombuffer(
         zlib.decompress(base64.b64decode(record["data_zlib_base64"])), np.int8
     ).reshape(record["height"], record["width"])
@@ -46,6 +47,7 @@ def main():
     goal = np.asarray(r["goal"]) if r.get("goal") else None
 
     def rotate(points, angle):
+
         return points @ np.array(
             [[math.cos(angle), math.sin(angle)], [-math.sin(angle), math.cos(angle)]]
         )

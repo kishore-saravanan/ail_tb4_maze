@@ -7,6 +7,7 @@ from ail_tb4_maze.pledge import Pledge
 
 
 def scan(front=3.0, side=0.38):
+
     return np.concatenate(
         (
             np.column_stack((np.linspace(-2, 3, 200), np.full(200, side))),
@@ -57,6 +58,7 @@ def room():
     cells[45:78, 42:59] = 0
     # Keep the doorway open into the main corridor.
     cells[40:51, 42:59] = 0
+
     return cells
 
 
@@ -121,6 +123,7 @@ def following_controller():
     p.observe_heading(0.0)
     p.preferred = p.turn_origin = math.pi
     p.following = True
+
     return p
 
 
@@ -299,4 +302,5 @@ def test_wall_mode_revolution_is_preserved_after_initial_heading_selection():
 
 
 def wrap_for_test(a):
+
     return math.atan2(math.sin(a), math.cos(a))

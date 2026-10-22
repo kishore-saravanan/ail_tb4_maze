@@ -30,6 +30,7 @@ from ail_tb4_maze.world_factory import generate
 
 def stop(proc):
     if proc is None or proc.poll() is not None:
+
         return
     os.killpg(proc.pid, signal.SIGINT)
     try:
@@ -162,6 +163,7 @@ def main():
             stamp = transform.header.stamp
             now = stamp.sec + stamp.nanosec / 1e9
             if now - last_truth_time[0] < 0.5:
+
                 return
             last_truth_time[0] = now
             p = transform.transform.translation
@@ -187,8 +189,10 @@ def main():
 
     def status():
         try:
+
             return json.loads((output / "status.json").read_text())
         except (OSError, ValueError):
+
             return {}
 
     try:

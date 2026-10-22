@@ -203,6 +203,7 @@ def setup(context):
                 ]
             )
         )
+
     return actions
 
 
@@ -214,6 +215,7 @@ def generate_launch_description():
             os.environ.get("GZ_SIM_RESOURCE_PATH", ""),
         ]
     )
+
     return LaunchDescription(
         [
             DeclareLaunchArgument("headless", default_value="false"),

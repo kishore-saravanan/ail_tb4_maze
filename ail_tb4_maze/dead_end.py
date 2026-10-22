@@ -30,6 +30,7 @@ def closed_left_opening(cells, resolution, origin, pose, audit=None, details=Non
     def grid(x, y):
         wx = pose[0] + co * x - si * y
         wy = pose[1] + si * x + co * y
+
         return int(math.floor((wy - origin[1]) / resolution)), int(
             math.floor((wx - origin[0]) / resolution)
         )
@@ -128,9 +129,11 @@ def closed_left_opening(cells, resolution, origin, pose, audit=None, details=Non
                 )
             # The virtual segment spans the physical mouth, rather than just
             # its eroded centre strip. It influences steering, never safety.
+
             return np.column_stack(
                 (np.linspace(low - 0.24, high + 0.24, 100), np.full(100, depth))
             )
+
     return None
 
 
@@ -151,11 +154,13 @@ class ClosedCorridors:
     @staticmethod
     def to_world(points, pose):
         co, si = math.cos(pose[2]), math.sin(pose[2])
+
         return points @ np.array([[co, si], [-si, co]]) + pose[:2]
 
     @staticmethod
     def to_body(points, pose):
         co, si = math.cos(pose[2]), math.sin(pose[2])
+
         return (points - np.asarray(pose[:2])) @ np.array([[co, -si], [si, co]])
 
     def update(self, cells, resolution, origin, pose, audit=None):
@@ -217,11 +222,14 @@ class ClosedCorridors:
                     (float(np.linalg.norm(body, axis=1).min()), record["id"], body)
                 )
         if not choices:
+
             return None
         _, self.selected_id, portal = min(choices, key=lambda item: item[0])
+
         return portal
 
     def describe(self):
+
         return [
             {
                 key: record[key]

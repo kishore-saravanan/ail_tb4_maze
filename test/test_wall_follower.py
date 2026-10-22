@@ -10,6 +10,7 @@ from wall_follower import WallFollower
 def scene(distance=0.45, front=3.0):
     wall = np.column_stack((np.linspace(-1, 2, 300), np.full(300, -distance)))
     end = np.column_stack((np.full(300, front), np.linspace(-distance, 2, 300)))
+
     return np.concatenate((wall, end))
 
 

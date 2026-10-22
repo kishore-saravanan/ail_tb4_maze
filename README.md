@@ -4,9 +4,7 @@
 
 `ail_tb4_maze` is a ROS 2 package for learning, experimenting with and evaluating sensor-based maze navigation. It includes a live setup GUI, randomized Gazebo worlds, a robot/map/path view in RViz, independent scoring, and an included frontier-exploration baseline to study or compare against.
 
-![Actual Gazebo and RViz screen recording: robot and its sensor-built map](docs/media/demo-preview.gif)
-
-*Real screen recording, cropped and trimmed. Preview: 2× screen playback; simulation target: 1×. [Watch/download the 1× MP4 excerpt](docs/media/gazebo-rviz-demo.mp4) · [Capture details and score](docs/media/README.md).*
+**Featured video:** [Watch/download the larger maze ending clip](docs/media/complex-maze-ending.mp4) — 20 m × 20 m, 12 × 12 cells; escaped in 589.213 simulated seconds with zero recorded contacts. The clip uses 1× screen playback; the simulation target was 2×. [Capture details and scores](docs/media/README.md).
 
 ## What you can do
 
@@ -99,7 +97,7 @@ The helper opens **visible Gazebo and RViz**, starts the timer and solver, recor
 | 16 m | 8×8 | 1773841193 | Yes | 199.6 s | 49.3 m | 0 |
 | 16 m | 10×10 | 1631833898 | Yes | 152.4 s | 34.4 m | 0 |
 
-These are one seed per combination, not a general success-rate estimate or a density ranking. The generator currently keeps the exit on the east boundary; the solver does not receive that information. [Recorded seeds, scores and source hashes](docs/randomized_grid_results.json) · [Validation history](docs/VALIDATION.md).
+These are one seed per combination, not a general success-rate estimate or a density ranking. The generator currently keeps the exit on the east boundary; the solver does not receive that information. [Validation summary and tested scope](docs/VALIDATION.md).
 
 ## Code and experiment data
 
@@ -133,7 +131,9 @@ Python follows the project Ruff formatter and PEP 8-oriented lint rules: four-sp
 python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/ruff check .
-.venv/bin/ruff format --check .
+.venv/bin/ruff format .
+python3 scripts/check_return_spacing.py --fix
+python3 scripts/check_return_spacing.py
 ```
 
 Keep a fixed seed, grid, speed cap and time budget when comparing algorithms. Report failures as well as successes, distinguish simulated time from wall time, and retain the raw result alongside any edited video. See [validation notes](docs/VALIDATION.md) for the tested scope and known limitations.
@@ -141,3 +141,5 @@ Keep a fixed seed, grid, speed cap and time budget when comparing algorithms. Re
 ## License and attribution
 
 Project code: [Apache-2.0](LICENSE). Robot, ROS and Gazebo components retain their upstream licenses. Texture sources/licenses are in [TEXTURE_ATTRIBUTION.md](docs/TEXTURE_ATTRIBUTION.md); world provenance is in [MAZE_SELECTION.md](docs/MAZE_SELECTION.md) and [worlds/LICENSE.upstream](worlds/LICENSE.upstream).
+
+Python style also requires a blank line before every `return` statement. After Ruff formatting, run `python3 scripts/check_return_spacing.py --fix`; check with `python3 scripts/check_return_spacing.py`.

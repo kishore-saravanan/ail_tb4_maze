@@ -83,6 +83,7 @@ def corridor():
     grid[19, 9:70] = 100
     grid[26, 9:70] = 100
     grid[19:27, 9] = 100
+
     return grid
 
 
@@ -236,6 +237,7 @@ def test_goal_handoff_only_extends_forward(current_x, extend):
 
         def send(goal):
             sent.append(goal)
+
             return Future()
 
         node.client = SimpleNamespace(
@@ -281,6 +283,7 @@ def room_with_map_hole():
     grid[40, 9:61] = 100
     grid[9:41, 9] = 100
     grid[24:26, 32:34] = -1
+
     return grid
 
 

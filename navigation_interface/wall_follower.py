@@ -36,6 +36,7 @@ class WallFollower:
             np.sin(bearing - math.radians(angle)), np.cos(bearing - math.radians(angle))
         )
         selected = points[np.abs(delta) < math.radians(width)]
+
         return (
             float(np.median(np.linalg.norm(selected, axis=1)))
             if len(selected) >= 2
@@ -45,9 +46,11 @@ class WallFollower:
     def step(self, scan_points, heading=None, position=None):
         points = np.asarray(scan_points, dtype=float)
         if points.ndim != 2 or points.shape[1] != 2 or len(points) < 12:
+
             return Decision(0.0, 0.0, "sensor_stop", 0.0, 0.0, 0.0)
         points = points[np.isfinite(points).all(axis=1)].copy()
         if len(points) < 12:
+
             return Decision(0.0, 0.0, "sensor_stop", 0.0, 0.0, 0.0)
         points[:, 1] *= self.sign
         side = self.sector(points, -90)
@@ -179,6 +182,7 @@ class WallFollower:
             )
         nearest = float(np.linalg.norm(points, axis=1).min())
         if nearest < 0.245:
+
             return Decision(0.0, 0.0, "obstacle_stop", front, side, alpha)
         # Predict the swept circular body, rather than checking a single ray.
         for candidate in [speed, speed * 0.5, 0.0]:
@@ -191,6 +195,7 @@ class WallFollower:
                 yy = np.zeros_like(t)
             separation = (points[:, 0, None] - xx) ** 2 + (points[:, 1, None] - yy) ** 2
             if float(separation.min()) > 0.285**2 or candidate == 0.0:
+
                 return Decision(
                     candidate,
                     angular * self.sign,
@@ -201,13 +206,16 @@ class WallFollower:
                     side,
                     alpha,
                 )
+
         return Decision(0.0, 0.0, "obstacle_stop", front, side, alpha)
 
     @staticmethod
     def safe_reverse(points):
         points = np.asarray(points, dtype=float)
         if len(points) < 12:
+
             return 0.0
         steps = np.linspace(0.0, 0.15, 16)
         separation = (points[:, 0, None] + steps) ** 2 + points[:, 1, None] ** 2
+
         return -0.10 if float(np.min(separation)) > 0.27**2 else 0.0

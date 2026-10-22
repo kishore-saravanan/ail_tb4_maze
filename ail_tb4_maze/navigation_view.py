@@ -33,6 +33,7 @@ class NavigationTrail(Node):
         self.poses.clear()
         response.success = True
         response.message = "Travelled path cleared"
+
         return response
 
     def tick(self):
@@ -44,6 +45,7 @@ class NavigationTrail(Node):
         try:
             t = self.tf.lookup_transform("map", "base_link", Time()).transform
         except TransformException:
+
             return
         pose = PoseStamped()
         pose.header.frame_id = "map"

@@ -93,6 +93,7 @@ class Explorer(Node):
 
     @staticmethod
     def pack_grid(msg):
+
         return dict(
             width=msg.info.width,
             height=msg.info.height,
@@ -117,17 +118,20 @@ class Explorer(Node):
 
     def refresh_planning_map(self):
         if self.raw_map is None or self.scan is None:
+
             return
         try:
             t = self.tf.lookup_transform(
                 "map", self.scan.header.frame_id, Time()
             ).transform
         except TransformException:
+
             return
         s = self.scan
         values = np.asarray(s.ranges)
         valid = (np.isfinite(values) & (values >= s.range_min)) | np.isposinf(values)
         if not valid.any():
+
             return
         angles = s.angle_min + np.arange(len(s.ranges)) * s.angle_increment
         q = t.rotation
@@ -197,12 +201,14 @@ class Explorer(Node):
 
     def lidar_points(self):
         if self.scan is None:
+
             return []
         try:
             t = self.tf.lookup_transform(
                 "base_link", self.scan.header.frame_id, Time()
             ).transform
         except TransformException:
+
             return []
         s = self.scan
         q = t.rotation
@@ -221,6 +227,7 @@ class Explorer(Node):
                 + (1 - 2 * (q.x * q.x + q.z * q.z)) * yy,
             )
         )
+
         return points[::3].round(3).tolist()
 
     def report(self, state, frontiers=()):
@@ -250,6 +257,7 @@ class Explorer(Node):
 
     def finished(self, future, sequence, target):
         if sequence != self.sequence:
+
             return
         result = future.result()
         self.goal_handle = None
@@ -264,6 +272,7 @@ class Explorer(Node):
         if sequence != self.sequence:
             if handle.accepted:
                 handle.cancel_goal_async()
+
             return
         self.pending = False
         if not handle.accepted:
@@ -271,6 +280,7 @@ class Explorer(Node):
             if self.goal_handle:
                 self.goal_handle.cancel_goal_async()
                 self.goal_handle = None
+
             return
         self.goal_handle = handle
         handle.get_result_async().add_done_callback(
@@ -287,11 +297,13 @@ class Explorer(Node):
                     "inspect controller.log"
                 )
             self.report("waiting_for_slam_and_nav2")
+
             return
         try:
             t = self.tf.lookup_transform("map", "base_link", Time()).transform
         except TransformException:
             self.report("waiting_for_localization")
+
             return
         self.pose = (t.translation.x, t.translation.y)
         q = t.rotation
@@ -301,6 +313,7 @@ class Explorer(Node):
         if not self.visited or math.dist(self.pose, self.visited[-1]) > 0.3:
             self.visited.append(self.pose)
         if self.pending:
+
             return
         if self.goal_handle:
             m = self.map
@@ -317,6 +330,7 @@ class Explorer(Node):
                 self.goal_handle = None
                 self.retry_time = now + 0.1
                 self.report("goal_invalidated_by_map")
+
                 return
             if now - self.goal_time > 40.0:
                 self.sequence += 1
@@ -326,15 +340,19 @@ class Explorer(Node):
                 self.pending = False
                 self.retry_time = now + 2
                 self.report("goal_timeout")
+
                 return
             if math.dist(self.pose, self.target) > 0.5:
                 self.report("navigating")
+
                 return
         if now < self.retry_time:
+
             return
         m = self.map
         if abs(m.info.origin.orientation.z) > 0.001:
             self.report("unsupported_map_rotation")
+
             return
         cells = np.asarray(m.data).reshape(m.info.height, m.info.width)
         point, frontiers = choose_frontier(
@@ -348,16 +366,19 @@ class Explorer(Node):
         if point is None:
             if self.goal_handle:
                 self.report("navigating")
+
                 return
             self.report("no_reachable_frontier", frontiers)
             # A finite blacklist must not permanently forbid the remaining map.
             if self.blacklist:
                 self.blacklist = self.blacklist[1:]
             self.retry_time = now + 2
+
             return
         if self.goal_handle:
             if math.dist(point, self.target) < 0.15:
                 self.report("navigating")
+
                 return
             old = (self.target[0] - self.pose[0], self.target[1] - self.pose[1])
             new = (point[0] - self.pose[0], point[1] - self.pose[1])
@@ -367,6 +388,7 @@ class Explorer(Node):
                 *old
             ) * math.hypot(*new):
                 self.report("navigating")
+
                 return
         self.target = point
         self.goal_time = now

@@ -149,6 +149,7 @@ def run_case(name, extra, drive=False, collision=False):
 
     def sim():
         m = data["clock"].clock
+
         return m.sec + m.nanosec / 1e9
 
     def call(path):

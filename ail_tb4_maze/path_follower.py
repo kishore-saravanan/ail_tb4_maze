@@ -6,6 +6,7 @@ import numpy as np
 
 
 def wrap(angle):
+
     return (angle + math.pi) % (2 * math.pi) - math.pi
 
 
@@ -19,7 +20,9 @@ def segment_clear(a, b, grid, resolution, origin, clearance=None, margin=0.25):
     ij = np.floor((p - np.asarray(origin)) / resolution).astype(int)
     cc, rr = ij.T
     if np.any((rr < 0) | (rr >= grid.shape[0]) | (cc < 0) | (cc >= grid.shape[1])):
+
         return False
+
     return bool(
         np.all(
             (grid[rr, cc] >= 0) & (grid[rr, cc] < 30) & (clearance[rr, cc] >= margin)
@@ -29,6 +32,7 @@ def segment_clear(a, b, grid, resolution, origin, clearance=None, margin=0.25):
 
 def simplify_route(route, grid, resolution, origin, clearance=None):
     if not route:
+
         return []
     result = [route[0]]
     i = 0
@@ -43,6 +47,7 @@ def simplify_route(route, grid, resolution, origin, clearance=None):
                 best = j
         result.append(route[best])
         i = best
+
     return result
 
 
@@ -80,17 +85,20 @@ class PathFollower:
 
     @property
     def done(self):
+
         return self.index >= len(self.route)
 
     @staticmethod
     def safe(points, v, w, horizon=None, radius=0.235):
         if not len(points):
+
             return False
         points = np.asarray(points)
         if horizon is None:
             horizon = 0.25 + abs(v) / (2 * 0.6)
         times = np.linspace(0.05, max(0.05, horizon), 12)
         if abs(v) < 1e-5:
+
             return float(np.linalg.norm(points, axis=1).min()) > 0.205
         if abs(w) < 1e-4:
             centers = np.column_stack([v * times, np.zeros(len(times))])
@@ -103,14 +111,17 @@ class PathFollower:
         )
         current = float(np.linalg.norm(points, axis=1).min())
         if current < radius and current > 0.205:
+
             return bool(
                 minimum.min() >= current - 0.002 and minimum[-1] > current + 0.004
             )
+
         return bool(minimum.min() >= radius)
 
     def step(self, pose, points):
         self.advance(pose)
         if self.done:
+
             return 0.0, 0.0, "arrived"
         target = self.route[self.index]
         distance = math.dist(pose[:2], target)
@@ -121,6 +132,7 @@ class PathFollower:
             self.turning = True
         if self.turning:
             w = float(np.clip(3.2 * error, -1.3, 1.3))
+
             return (
                 (0.0, w, "turn") if self.safe(points, 0.0, w) else (0.0, 0.0, "blocked")
             )
@@ -130,7 +142,10 @@ class PathFollower:
         w = float(np.clip(2.5 * error, -0.7, 0.7))
         for scale in [1.0, 0.5, 0.25, 0.125]:
             if self.safe(points, v * scale, w):
+
                 return v * scale, w, "drive"
         if abs(w) > 0.05 and self.safe(points, 0.0, w):
+
             return 0.0, w, "align"
+
         return 0.0, 0.0, "blocked"

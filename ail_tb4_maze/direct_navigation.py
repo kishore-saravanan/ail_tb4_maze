@@ -51,23 +51,27 @@ class DirectExplorer(Explorer):
         try:
             t = self.tf.lookup_transform("map", "base_link", Time()).transform
         except TransformException:
+
             return False
         q = t.rotation
         self.heading = math.atan2(
             2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z)
         )
         self.pose = (t.translation.x, t.translation.y)
+
         return True
 
     def points(self):
         """Project the current LiDAR scan into the robot body frame."""
         if self.scan is None:
+
             return np.empty((0, 2))
         try:
             t = self.tf.lookup_transform(
                 "base_link", self.scan.header.frame_id, Time()
             ).transform
         except TransformException:
+
             return np.empty((0, 2))
         s = self.scan
         q = t.rotation
@@ -77,6 +81,7 @@ class DirectExplorer(Explorer):
         ranges = np.minimum(values[ok], min(8.0, s.range_max))
         x = np.cos(a[ok]) * ranges
         y = np.sin(a[ok]) * ranges
+
         return np.column_stack(
             (
                 t.translation.x
@@ -128,6 +133,7 @@ class DirectExplorer(Explorer):
             if time.monotonic() - self.started > 60.0:
                 raise RuntimeError("SLAM did not become ready")
             self.navigation_report("waiting_for_slam")
+
             return
         if not self.visited or math.dist(self.pose, self.visited[-1]) > 0.3:
             self.visited.append(self.pose)
@@ -159,11 +165,13 @@ class DirectExplorer(Explorer):
                 previous = p
             if not self.replan:
                 self.navigation_report(self.motion_state)
+
                 return
         elif self.follower.done:
             self.replan_reason = "route_finished"
         if now < self.backup_until:
             self.navigation_report(self.motion_state)
+
             return
         point, frontiers, route = choose_frontier(
             cells,
@@ -195,6 +203,7 @@ class DirectExplorer(Explorer):
             self.navigation_report("no_reachable_frontier", frontiers)
             if self.blacklist:
                 self.blacklist.pop(0)
+
             return
         self.target = point
         self.goal_time = now
@@ -217,10 +226,12 @@ class DirectExplorer(Explorer):
             or not self.update_pose()
         ):
             self.publish(0.0, 0.0)
+
             return
         points = self.points()
         if not len(points):
             self.publish(0.0, 0.0)
+
             return
         if now < self.backup_until:
             if self.follower.safe(points, -0.1, 0.0):
@@ -232,6 +243,7 @@ class DirectExplorer(Explorer):
             else:
                 self.publish(0.0, 0.0)
                 self.motion_state = "recover_stop"
+
             return
         v, w, state = self.follower.step((*self.pose, self.heading), points)
         self.motion_state = state

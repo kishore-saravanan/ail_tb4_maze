@@ -6,6 +6,7 @@ from ail_tb4_maze.path_follower import PathFollower
 
 
 def wall(a, b):
+
     return np.linspace(a, b, max(2, math.ceil(math.dist(a, b) / 0.015)))
 
 

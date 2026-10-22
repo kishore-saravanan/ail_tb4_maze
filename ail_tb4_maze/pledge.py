@@ -10,6 +10,7 @@ import numpy as np
 
 
 def wrap(angle):
+
     return math.atan2(math.sin(angle), math.cos(angle))
 
 
@@ -45,6 +46,7 @@ class Pledge:
     @staticmethod
     def front(points):
         ahead = points[(points[:, 0] > 0) & (np.abs(points[:, 1]) < 0.22)]
+
         return float(ahead[:, 0].min()) if len(ahead) else math.inf
 
     @staticmethod
@@ -53,6 +55,7 @@ class Pledge:
         # into a different junction. A lower quantile lets a proven virtual
         # foreground wall occlude distant returns.
         selected = points[(points[:, 1] * sign > 0) & (np.abs(points[:, 0]) < 0.045)]
+
         return (
             float(np.quantile(selected[:, 1] * sign, 0.2))
             if len(selected) >= 2
@@ -78,6 +81,7 @@ class Pledge:
         self.left_armed = False
 
     def heading_command(self, heading):
+
         return float(np.clip(2.8 * (heading - self.unwrapped), -0.85, 0.85))
 
     def step(self, points, pose, steering_points=None):
@@ -85,6 +89,7 @@ class Pledge:
         points = np.asarray(points)
         if len(points) < 12:
             self.state = "sensor_stop"
+
             return 0.0, 0.0
         steering = points if steering_points is None else steering_points
         front = self.front(points)
@@ -96,6 +101,7 @@ class Pledge:
                 self.state = (
                     "committed_turn_left" if error > 0 else "committed_turn_right"
                 )
+
                 return 0.0, float(np.clip(2.8 * error, -0.85, 0.85))
             self.segment_heading = self.turn_target
             self.egress_heading = self.turn_target
@@ -104,6 +110,7 @@ class Pledge:
         if self.egress_origin is not None:
             if math.dist(pose[:2], self.egress_origin) < 0.42 and front > 0.46:
                 self.state = "clear_junction"
+
                 return 0.20, self.heading_command(self.egress_heading)
             self.egress_origin = None
             if self.entry_phase:
@@ -128,6 +135,7 @@ class Pledge:
                 self.entry_choice_done = False
             self.left_armed = True
             self.state = "pass_proven_dead_end"
+
             return 0.27, self.heading_command(self.segment_heading)
         if self.advance_origin is not None:
             if (
@@ -135,9 +143,11 @@ class Pledge:
                 and front > 0.32
             ):
                 self.state = "advance_to_corner"
+
                 return 0.18, self.heading_command(self.segment_heading)
             self.start_turn(1)
             self.state = "committed_turn_left"
+
             return 0.0, 0.85
         preferred_error = self.preferred - self.unwrapped
         if (
@@ -175,6 +185,7 @@ class Pledge:
                     self.advance_origin = tuple(pose[:2])
                     self.advance_distance = min(0.38, max(0.0, front - 0.34))
                     self.state = "select_initial_corridor"
+
                     return 0.18, self.heading_command(self.preferred)
             if front < 0.43 and abs(wrap(preferred_error)) < 0.18:
                 self.entry_choice_done = True
@@ -183,8 +194,10 @@ class Pledge:
                 self.segment_heading = self.preferred
                 self.start_turn(-1)
                 self.state = "committed_turn_right"
+
                 return 0.0, -0.85
             self.state = "preferred_direction"
+
             return 0.30 * max(
                 0.0, 1.0 - abs(wrap(preferred_error)) / 0.4
             ), self.heading_command(self.preferred)
@@ -195,10 +208,12 @@ class Pledge:
             self.advance_distance = min(0.38, max(0.0, front - 0.34))
             self.left_armed = False
             self.state = "advance_to_corner"
+
             return 0.18, self.heading_command(self.segment_heading)
         if front < 0.43:
             self.start_turn(-1)
             self.state = "committed_turn_right"
+
             return 0.0, -0.85
         angular = self.heading_command(self.segment_heading)
         if 0.20 < left < 0.85:
@@ -206,6 +221,7 @@ class Pledge:
         if right < 0.30:
             angular += float(np.clip(2.0 * (0.32 - right), 0.0, 0.4))
         self.state = "follow_left_wall"
+
         return 0.27, float(np.clip(angular, -0.85, 0.85))
 
 
@@ -232,8 +248,10 @@ class PledgeMotion:
         if now < self.recovery_until:
             self.pledge.state = "recover_back"
             if self.guard.safe(points, -0.10, 0.0):
+
                 return -0.10, 0.0
             self.pledge.state = "recover_stop"
+
             return 0.0, 0.0
         v, w = self.pledge.step(points, pose, steering_points)
         self.blocked = False
@@ -259,5 +277,7 @@ class PledgeMotion:
             self.blocked_since = None
             self.pledge.reset_motion()
             self.pledge.state = "recover_back"
+
             return (-0.10, 0.0) if self.guard.safe(points, -0.10, 0.0) else (0.0, 0.0)
+
         return command

@@ -32,6 +32,7 @@ def generate_launch_description():
     )
 
     def required_exit(event, context):
+
         return (
             []
             if context.is_shutdown

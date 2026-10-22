@@ -19,6 +19,7 @@ def generate_launch_description():
     ).toxml()
     model = fixed_display_model(physical)
     common = {"use_sim_time": True}
+
     return LaunchDescription(
         [
             Node(

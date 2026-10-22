@@ -55,6 +55,7 @@ class Referee(Node):
         self.create_timer(0.05, self.tick)
 
     def now(self):
+
         return self.get_clock().now().nanoseconds / 1e9
 
     def validate_parameters(self, parameters):
@@ -64,10 +65,12 @@ class Referee(Node):
                 or not math.isfinite(parameter.value)
                 or parameter.value < 0
             ):
+
                 return SetParametersResult(
                     successful=False,
                     reason="Time limit must be nonnegative; 0 means unlimited",
                 )
+
         return SetParametersResult(successful=True)
 
     def start(self, request, response):
@@ -85,6 +88,7 @@ class Referee(Node):
                 else "Restart launch for a fresh trial"
             )
         self.persist()
+
         return response
 
     def reset(self, request, response):
@@ -108,6 +112,7 @@ class Referee(Node):
         self.persist()
         response.success = True
         response.message = "Fresh trial ready; waiting for pose"
+
         return response
 
     def abort(self, request, response):
@@ -115,6 +120,7 @@ class Referee(Node):
         self.persist()
         response.success = True
         response.message = "Aborted; scoring saved"
+
         return response
 
     def on_pose(self, msg):

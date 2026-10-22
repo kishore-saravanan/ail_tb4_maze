@@ -11,6 +11,7 @@ from ail_tb4_maze.paths import RESULTS
 
 
 def generate_launch_description():
+
     return LaunchDescription(
         [
             DeclareLaunchArgument("navigation_backend", default_value="direct"),

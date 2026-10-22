@@ -25,6 +25,7 @@ from std_srvs.srv import SetBool, Trigger
 def transport():
     options = NodeOptions()
     options.partition = "ai_legion_maze"
+
     return GzNode(options)
 
 
@@ -32,6 +33,7 @@ def request(node, service, message, response=Boolean):
     ok, result = node.request(service, message, type(message), response, 7000)
     if not ok or (response is Boolean and not result.data):
         raise RuntimeError("Gazebo did not accept " + service)
+
     return result
 
 
@@ -44,6 +46,7 @@ def gz(service, typ, text):
     }[typ]
     message = cls()
     text_format.Parse(text, message)
+
     return request(transport(), service, message)
 
 
@@ -66,6 +69,7 @@ def ros_service(path, kind=Trigger, data=None):
         response = future.result()
         if not response.success:
             raise RuntimeError(response.message)
+
         return response.message
     finally:
         node.destroy_node()
@@ -78,6 +82,7 @@ def update(draft, state=None):
     target.mkdir(parents=True, exist_ok=True)
     with (target / ".update.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
+
         return _update(draft, target)
 
 
@@ -104,6 +109,7 @@ def _update(draft, state=None):
         p.position.y = y
         p.position.z = z
         p.orientation.w = 1
+
         return p
 
     request(node, prefix + "control", WorldControl(pause=True))
@@ -151,6 +157,7 @@ def _update(draft, state=None):
     finally:
         request(node, prefix + "control", WorldControl(pause=False))
     ros_service("/interface/enable", SetBool, True)
+
     return "Live maze updated. Robot reset; timer ready."
 
 
@@ -178,4 +185,5 @@ def reset_trial(state):
         finally:
             request(node, prefix + "control", WorldControl(pause=False))
         ros_service("/interface/enable", SetBool, True)
+
     return "Robot reset. Timer ready; maze unchanged."

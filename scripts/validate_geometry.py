@@ -34,19 +34,23 @@ for model in world.findall("model"):
 
 
 def clearance(x, y):
+
     return min(
         math.hypot(max(a - x, 0, x - b), max(c - y, 0, y - d)) for a, b, c, d in boxes
     )
 
 
 def point(i, j):
+
     return -9.5 + i * step, -9.5 + j * step
 
 
 def free(i, j):
     if not (0 <= i <= 200 and 0 <= j <= 190):
+
         return False
     x, y = point(i, j)
+
     return clearance(x, y) > radius + 0.02
 
 
