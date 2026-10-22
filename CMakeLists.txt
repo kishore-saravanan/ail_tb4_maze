@@ -1,15 +1,40 @@
 cmake_minimum_required(VERSION 3.8)
 project(ail_tb4_maze)
+
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 ament_python_install_package(${PROJECT_NAME})
-install(DIRECTORY launch config worlds assets navigation_interface docs DESTINATION share/${PROJECT_NAME})
-install(PROGRAMS resource/referee resource/gateway resource/setup_gui resource/maze_solver DESTINATION lib/${PROJECT_NAME})
-install(FILES README.md requirements.txt requirements-video.txt LICENSE DESTINATION share/${PROJECT_NAME})
+
+install(
+  DIRECTORY launch config worlds assets navigation_interface examples docs
+  DESTINATION share/${PROJECT_NAME}
+)
+install(
+  PROGRAMS
+    resource/referee
+    resource/gateway
+    resource/setup_gui
+    resource/maze_solver
+    resource/frontier_explorer
+    resource/velocity_adapter
+    resource/direct_explorer
+    resource/pledge_explorer
+    resource/navigation_view
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(
+  FILES README.md requirements.txt requirements-video.txt LICENSE
+  DESTINATION share/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
- find_package(ament_cmake_pytest REQUIRED)
- ament_add_pytest_test(wall_follower test/test_wall_follower.py)
- ament_add_pytest_test(scoring test/test_scoring.py)
- ament_add_pytest_test(world_factory test/test_world_factory.py)
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(pledge test/test_pledge.py)
+  ament_add_pytest_test(path_follower test/test_path_follower.py)
+  ament_add_pytest_test(frontier_planner test/test_frontier_planner.py)
+  ament_add_pytest_test(wall_follower test/test_wall_follower.py)
+  ament_add_pytest_test(scoring test/test_scoring.py)
+  ament_add_pytest_test(world_factory test/test_world_factory.py)
 endif()
+
 ament_package()

@@ -1,0 +1,4 @@
+#!/usr/bin/python3
+from ail_tb4_maze.navigation_view import main
+
+main()

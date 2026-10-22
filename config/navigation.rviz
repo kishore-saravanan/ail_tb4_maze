@@ -1,0 +1,98 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Background Color: 35; 40; 48
+    Fixed Frame: map
+    Frame Rate: 20
+  Displays:
+    - Class: rviz_default_plugins/RobotModel
+      Name: TurtleBot 4
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Value: /display/robot_description
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        Depth: 1
+      Visual Enabled: true
+      Collision Enabled: false
+      Alpha: 1
+    - Class: rviz_default_plugins/Path
+      Name: Travelled path - SLAM pose
+      Enabled: true
+      Topic:
+        Value: /travelled_path
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        Depth: 1
+      Color: 0; 190; 255
+      Line Style: Billboards
+      Line Width: 0.06
+    - Class: rviz_default_plugins/Map
+      Name: Robot knowledge - sensor-built planning map
+      Enabled: true
+      Topic:
+        Value: /navigation/map
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        Depth: 1
+      Alpha: 0.8
+      Color Scheme: map
+    - Class: rviz_default_plugins/Path
+      Name: Planned route
+      Enabled: true
+      Topic:
+        Value: /plan
+        Durability Policy: Volatile
+        Reliability Policy: Reliable
+        Depth: 1
+      Color: 0; 255; 160
+      Line Style: Lines
+      Line Width: 0.04
+    - Class: rviz_default_plugins/LaserScan
+      Name: Live LiDAR
+      Enabled: true
+      Topic:
+        Value: /scan
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        Depth: 5
+      Size (m): 0.04
+      Style: Points
+      Color Transformer: FlatColor
+      Color: 255; 150; 30
+      Position Transformer: XYZ
+      Use Fixed Frame: true
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Pledge decisions and proven dead ends
+      Enabled: true
+      Namespaces:
+        pledge: true
+        pledge_status: false
+      Topic:
+        Value: /pledge/debug
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        Depth: 1
+    - Class: rviz_default_plugins/TF
+      Name: Robot frames
+      Enabled: false
+      Show Names: false
+      Marker Scale: 0.2
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 8
+      Pitch: 1.1
+      Yaw: 0.5
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0
+      Target Frame: base_link
+Window Geometry:
+  Width: 1100
+  Height: 800

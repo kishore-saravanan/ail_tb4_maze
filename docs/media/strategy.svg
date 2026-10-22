@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1000" viewBox="0 0 1440 1000" role="img" aria-labelledby="title desc">
+<title id="title">Sensor-built frontier exploration with early goal retirement</title><desc id="desc">Four steps build a map, choose a frontier, plan through free space and drive with live collision checks. A T junction illustration shows a scan revealing a closed tip, allowing the robot to redirect to an unknown branch without reaching the old goal.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#67dec2" stroke-width="2"/></marker><marker id="muted" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#9eafb9" stroke-width="2"/></marker></defs>
+<rect width="1440" height="1000" rx="24" fill="#101b24"/><g font-family="DejaVu Sans,Arial,sans-serif" fill="#ecf4f6">
+<text x="48" y="58" font-size="18" fill="#67dec2" letter-spacing="3">TURTLEBOT 4 MAZE LAB · INCLUDED BASELINE</text>
+<text x="48" y="112" font-size="38" font-weight="bold">Explore what is unknown. Retire what is already seen.</text>
+<text x="48" y="150" font-size="21" fill="#b0c3ca">No preloaded map or exit coordinates. The map grows from the robot’s own sensors.</text>
+<rect x="48" y="190" width="318" height="170" rx="16" fill="#1a2b37" stroke="#365163"/><text x="70" y="228" font-size="19" fill="#67dec2">01 / BUILD THE MAP</text><text x="70" y="275" font-size="22" font-weight="bold">LiDAR + wheel odometry</text><text x="70" y="316" font-size="17" fill="#b0c3ca">SLAM estimates map and pose.</text>
+<path d="M368 272H385" stroke="#67dec2" fill="none" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="390" y="190" width="318" height="170" rx="16" fill="#1a2b37" stroke="#365163"/><text x="412" y="228" font-size="19" fill="#67dec2">02 / CHOOSE A FRONTIER</text><text x="412" y="275" font-size="22" font-weight="bold">Known free ↔ unknown</text><text x="412" y="316" font-size="17" fill="#b0c3ca">Balance travel, gain and visits.</text>
+<path d="M710 272H727" stroke="#67dec2" fill="none" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="732" y="190" width="318" height="170" rx="16" fill="#1a2b37" stroke="#365163"/><text x="754" y="228" font-size="19" fill="#67dec2">03 / PLAN THE ROUTE</text><text x="754" y="275" font-size="22" font-weight="bold">Dijkstra on safe free cells</text><text x="754" y="316" font-size="17" fill="#b0c3ca">Walls and unknown are blocked.</text>
+<path d="M1052 272H1069" stroke="#67dec2" fill="none" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1074" y="190" width="318" height="170" rx="16" fill="#1a2b37" stroke="#365163"/><text x="1096" y="228" font-size="19" fill="#67dec2">04 / DRIVE AND CHECK</text><text x="1096" y="275" font-size="22" font-weight="bold">Live LiDAR safety check</text><text x="1096" y="316" font-size="17" fill="#b0c3ca">20 Hz · swept body · 0.30 m/s</text>
+<path d="M1233 368V405H549V368" fill="none" stroke="#67dec2" stroke-width="2" marker-end="url(#arrow)"/><rect x="690" y="385" width="430" height="38" rx="10" fill="#101b24"/><text x="706" y="412" font-size="19" fill="#67dec2">Recheck the map every 0.5 simulated seconds</text><text x="48" y="466" font-size="27" font-weight="bold">Why a visible dead end does not need a visit</text>
+<rect x="48" y="491" width="648" height="409" rx="16" fill="#1a2b37" stroke="#365163"/>
+<text x="70" y="530" font-size="20" fill="#e8b467">A / BEFORE THE NEXT SCAN</text>
+<path d="M100 698H322V579H426V698H632V791H100Z" fill="#d5dddd"/>
+<path d="M100 698H322V579M426 579V698H632M100 791H632" stroke="#0a1219" stroke-width="8" fill="none"/>
+<rect x="329" y="579" width="90" height="62" fill="#617781"/><path d="M328 642H420" stroke="#f0b65a" stroke-width="7" stroke-dasharray="10 5"/>
+<path d="M101 747H196" stroke="#39b9ff" stroke-width="6" fill="none"/><circle cx="212" cy="747" r="20" fill="#101b24" stroke="#39b9ff" stroke-width="3"/><path d="M214 741L225 747L214 753" stroke="#ecf4f6" stroke-width="2" fill="none"/>
+<rect x="576" y="704" width="56" height="80" fill="#617781"/><path d="M576 704V784" stroke="#f0b65a" stroke-width="7" stroke-dasharray="10 5"/><path d="M236 747H566" stroke="#67dec2" stroke-width="5" fill="none" marker-end="url(#arrow)"/><text x="434" y="678" font-size="17" fill="#f0b65a">Current frontier goal</text>
+<text x="70" y="842" font-size="19" fill="#b0c3ca">A temporary target leads toward unseen space.</text>
+<text x="70" y="870" font-size="19" fill="#b0c3ca">A side branch is also still unknown.</text>
+<rect x="744" y="491" width="648" height="409" rx="16" fill="#1a2b37" stroke="#365163"/>
+<text x="766" y="530" font-size="20" fill="#67dec2">B / AFTER THE SCAN REVEALS A CLOSED TIP</text>
+<path d="M796 698H1018V579H1122V698H1328V791H796Z" fill="#d5dddd"/>
+<path d="M796 698H1018V579M1122 579V698H1328M796 791H1328" stroke="#0a1219" stroke-width="8" fill="none"/>
+<rect x="1025" y="579" width="90" height="62" fill="#617781"/><path d="M1024 642H1116" stroke="#f0b65a" stroke-width="7" stroke-dasharray="10 5"/>
+<path d="M797 747H892" stroke="#39b9ff" stroke-width="6" fill="none"/><circle cx="908" cy="747" r="20" fill="#101b24" stroke="#39b9ff" stroke-width="3"/><path d="M910 741L921 747L910 753" stroke="#ecf4f6" stroke-width="2" fill="none"/>
+<path d="M1328 698V791" stroke="#0a1219" stroke-width="8"/><path d="M932 747H1070V654" stroke="#67dec2" stroke-width="5" fill="none" marker-end="url(#arrow)"/><path d="M1259 733L1287 761M1259 761L1287 733" stroke="#99a8ae" stroke-width="5"/><text x="1138" y="678" font-size="17" fill="#b0c3ca">Seen tip: retire goal</text>
+<text x="766" y="842" font-size="19" fill="#b0c3ca">The old goal no longer borders unknown space.</text>
+<text x="766" y="870" font-size="19" fill="#b0c3ca">Choose another frontier before reaching the tip.</text>
+<text x="48" y="941" font-size="18" fill="#b0c3ca">Illustration, not simulator ground truth. Backtracking may still be needed to reach another unknown branch.</text><text x="48" y="974" font-size="17" fill="#829ba7">Blue = travelled path · Green = planned route · Amber = frontier · Grey-blue = unknown · Light = observed free space</text></g></svg>

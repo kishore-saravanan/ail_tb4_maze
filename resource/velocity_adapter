@@ -1,0 +1,4 @@
+#!/usr/bin/python3
+from ail_tb4_maze.velocity_adapter import main
+
+main()

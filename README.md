@@ -1,92 +1,143 @@
-# AI Legion TurtleBot 4 Maze Challenge
+# TurtleBot 4 Maze Lab
 
-ROS 2 package **ail_tb4_maze** for Ubuntu 24.04, ROS 2 Jazzy and Gazebo Harmonic. Includes Gazebo, RViz, live maze setup, a privileged referee and a restricted navigation interface. The robot autonomously follows its right-hand wall using LiDAR, with no preloaded map or exit coordinates.
+**Generate a maze. Watch the robot build its map. Test your own navigation algorithm.**
 
-## Screenshots
+`ail_tb4_maze` is a ROS 2 package for learning, experimenting with and evaluating sensor-based maze navigation. It includes a live setup GUI, randomized Gazebo worlds, a robot/map/path view in RViz, independent scoring, and an included frontier-exploration baseline to study or compare against.
 
-![Outdoor maze in Gazebo with brick walls and green hedges](docs/realistic_gazebo.png)
+![Actual Gazebo and RViz screen recording: robot and its sensor-built map](docs/media/demo-preview.gif)
 
-| Setup GUI | RViz robot and LiDAR view |
-| --- | --- |
-| <img src="docs/setup.png" alt="Maze setup GUI with size, grid, randomization and scoring controls" width="360"> | <img src="docs/rviz_verified.png" alt="TurtleBot 4 and LiDAR data in RViz" width="420"> |
+*Real screen recording, cropped and trimmed. Preview: 2× screen playback; simulation target: 1×. [Watch/download the 1× MP4 excerpt](docs/media/gazebo-rviz-demo.mp4) · [Capture details and score](docs/media/README.md).*
 
-## Launch
+## What you can do
 
-```bash
-source /opt/ros/jazzy/setup.bash
-source ~/ai_legion_ws/install/setup.bash
-ros2 launch ail_tb4_maze setup.launch.py
-```
+- Change maze size and grid density, or randomize the layout **without reopening Gazebo**.
+- See the TurtleBot 4, live LiDAR, its discovered map, planned route and travelled path in RViz.
+- Run unlimited experiments, or choose a simulated-time deadline for fair comparisons.
+- Measure full-footprint escape, elapsed simulation time, travelled distance and wall-contact episodes.
+- Study the included solver, replace its frontier heuristic, compare backends, or run your own Python controller.
 
-The setup window opens Gazebo and RViz automatically. Commands work from any directory. Close the setup window to stop the environment it started.
+The navigation algorithm receives **no generated map, maze dimensions or exit coordinates**. Its map comes from its own sensors. The operator's setup preview is a separate view of the full generated maze.
 
-## Build from a repository checkout
+## Quick start
 
-Place this repository at `YOUR_WORKSPACE/src/ail_tb4_maze`. Install the ROS dependencies listed in package.xml with rosdep in an existing Jazzy environment, then:
+The tested platform is **Ubuntu 24.04, ROS 2 Jazzy and Gazebo Harmonic**, with the official TurtleBot 4 standard model. Start with ROS 2, Gazebo, `rosdep` and `colcon` installed and rosdep initialized. Package dependencies are declared in [`package.xml`](package.xml).
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-cd YOUR_WORKSPACE
+mkdir -p ~/ai_legion_ws/src
+git clone https://github.com/kishore-saravanan/ail_tb4_maze.git \
+  ~/ai_legion_ws/src/ail_tb4_maze
+cd ~/ai_legion_ws
 rosdep install --from-paths src --ignore-src -r -y
 colcon build --symlink-install --packages-select ail_tb4_maze
 source install/setup.bash
 ros2 launch ail_tb4_maze setup.launch.py
 ```
 
-`requirements.txt` lists Python dependencies; ROS and Gazebo bindings come from ROS/Ubuntu packages, not pip. On this machine PyQt5 and Gazebo bindings are already installed. The package-local `scripts/build.sh` can also use the existing local colcon fallback.
+For an existing checkout, build and source its workspace rather than cloning again. See the official [ROS 2 Jazzy installation guide](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html) if ROS is not installed. Python requirements supplement the ROS/Ubuntu dependencies; do not install ROS or Gazebo bindings from pip.
 
-## Setup controls
+## Run your first experiment
 
-- Choose the official layout or a random grid maze. Set the square maze side (12–40 m) and grid cells. Press Enter or Apply size / grid after typing, or use Randomize. The preview labels the applied physical dimensions. Changes replace walls live without reopening Gazebo and reset the trial and controller.
-- The 2D preview follows the successfully applied layout. Ground uses the preferred green terrain texture; walls use brick and shrubs use green hedge textures.
-- Start timer begins the 300 simulated-second trial. Collision episodes, distance, pass/fail and the saved JSON result appear in the window.
-- Edit `navigation_interface/controller.py`, or enter another Python script path. Start solver launches it in ROS domain 62; Stop solver stops its process group. Start the timer before starting your algorithm. Commands are gated by the active trial.
-- Reset robot / trial clears the attempt and stops the controller. Restart the controller for each attempt.
+1. Choose a random maze, its physical size and grid density. **Randomize** and **Apply size / grid** update the live world and the setup preview.
+2. Leave **Time limit = No limit**, or choose a positive number of simulated seconds. Zero means unlimited.
+3. Press **Start timer**, then **Start solver**. The default solver starts SLAM and navigation together.
+4. Watch RViz. Its map appears after SLAM starts: **light = known free space**, **dark = walls**, **grey-blue = unknown**, **orange = LiDAR**, **green = planned route**, **cyan = travelled path**. Use **Navigation map** to reopen the correct view.
+5. Inspect the saved JSON score. **Stop trial** records a manual abort; **Reset robot / trial** prepares a fresh attempt and stops the solver. Restart the solver for each attempt.
 
-## Repository layout
+![Live maze setup: size, grid, unlimited timer and solver controls; full scrollable panel](docs/media/setup.png)
 
-```text
-ail_tb4_maze/          Python infrastructure and GUI
-launch/               setup.launch.py and challenge.launch.py
-navigation_interface/ LiDAR wall follower and ROS controller
-assets/               local texture assets
-worlds/, config/      simulator and referee configuration
-test/, scripts/       validation and development helpers
-docs/                 provenance, attribution and validation notes
-.runtime/             generated scenes, logs and results (ignored by Git)
-.tools/               local build-tool fallback (ignored by Git)
-```
+The maze side can be set from 12–40 m. Grid density changes passage width as well as the number of junctions. Size/grid changes reset the attempt. Closing the setup GUI stops the environment it owns.
 
-Normal ROS workspace `build/`, `install/`, and `log/` directories remain at workspace level. Project scripts, documentation and runtime files live inside this package. For an installed package without a source checkout, runtime files use `$XDG_STATE_HOME/ail_tb4_maze` (default `~/.local/state/ail_tb4_maze`). Override with the `runtime_dir` setup launch argument or `AIL_TB4_MAZE_RUNTIME_DIR`.
+The time limit is captured at **Start timer** and stays fixed for that attempt. Unlimited mode retains the timer, distance and contact counts; success, manual abort or infrastructure failure can still end a run. Results store `time_limit_sim_seconds: 0` for unlimited duration.
 
-## Can my robot escape the maze?
+## The included strategy
 
-The experiment uses a **right-hand wall-following algorithm**: keep the wall on the right, turn left when blocked, and turn right into openings. LiDAR feedback controls steering and checks clearance before motion. Wheel odometry measures short acquisition and corner movements; ongoing wall following uses LiDAR.
+The default is **sensor-built frontier exploration with early goal retirement**:
 
-This is reactive robot navigation, not a coding-agent contest or a trained neural network. Wall following can loop around disconnected obstacles and is not guaranteed to finish every maze within the 300-second budget. See [the controller guide](navigation_interface/README.md).
+![Map, choose a frontier, plan, drive, and abandon an already observed dead end](docs/media/strategy.svg)
 
-Current accelerated regression result (target real-time factor 3): the official 20 m maze and random 12 m maze (seed 7) both timed out at 300 simulated seconds with zero recorded collision episodes. **No escape is claimed.** See [results and limitations](docs/VALIDATION.md#autonomous-wall-following-experiment--2026-10-18).
+**LiDAR → SLAM map → reachable frontier → Dijkstra route → sensor-checked motion → replan.**
 
-Run a repeatable scored experiment:
+The robot explores where known free space meets unknown space. Target choice considers travel cost, wall clearance, prior visits and a modest information-gain proxy. When a new scan has already revealed a target region, the planner retires that goal and chooses another frontier before driving all the way to the old tip. Motion uses live LiDAR checks and a **0.30 m/s** cap.
+
+This is a classical planning baseline, not a trained neural network. Backtracking can still be necessary. It has no persistent corridor/junction graph or explicit outer-boundary-first heuristic. The referee detects escape; the robot does not yet declare escape itself. Read the [algorithm walkthrough, module map and limitations](docs/ALGORITHM.md).
+
+## Try your own algorithm
+
+Two useful starting points:
+
+- **Change exploration decisions:** edit `choose_frontier()` in [`frontier_planner.py`](ail_tb4_maze/frontier_planner.py), retaining its contract. Reuse SLAM, route following, the GUI and scoring.
+- **Replace the controller:** enter your Python script path in the GUI. [`examples/custom_controller.py`](examples/custom_controller.py) is a minimal sensor/command template that intentionally commands zero velocity until you implement its decision method.
+
+The default GUI navigation domain is **62**; the infrastructure domain is **61**. Velocity commands use `geometry_msgs/msg/TwistStamped` on `/cmd_vel`. A replacement controller owns its mapping and collision-avoidance logic; the gateway still enforces command limits and trial gating. Read the [integration guide](docs/EXTENDING.md) before running a replacement controller. Do not run two controllers in the same domain.
+
+## Reproducible trials and comparisons
+
+From the repository, after sourcing ROS and the built workspace:
 
 ```bash
-python3 scripts/run_experiment.py --preset official --rtf 1
-python3 scripts/run_experiment.py --preset random --size 12 --cells 6 --seed 7 --rtf 1
+python3 scripts/run_experiment.py \
+  --preset random --size 12 --cells 6 --seed 7 \
+  --backend direct --rtf 1 --time-limit 300 --visible
 ```
 
-Add `--visible` to record Gazebo. The helper saves scene parameters, LiDAR/decision telemetry and the actual referee result. See [the short-video plan](docs/VIDEO_EXPERIMENT.md) for the storyboard and motion-graphics workflow.
+The helper opens **visible Gazebo and RViz**, starts the timer and solver, records the scene and source hashes, then leaves the final scene paused for inspection. Close Gazebo or press Ctrl+C to clean up. It uses isolated domains **63/64** and its own Gazebo partition, so it does not modify the GUI's experiment.
 
-## Navigation and scoring
+- `--time-limit 0`: unlimited duration, the default.
+- `--time-limit 300`: a five-minute simulated-time comparison budget.
+- `--backend pledge` or `--backend nav2`: alternative included baselines.
+- `--rtf 2`: request faster simulation while retaining the robot's speed cap.
+- `--infra-domain` / `--nav-domain`: choose another unused domain pair for an independent run.
+- `--wall-timeout SECONDS`: optional wall-clock watchdog; disabled by default.
 
-See [the sensor and controller interface](navigation_interface/README.md). Only LiDAR, wheel odometry, IMU, allowed TF and simulation clock are supplied; velocity commands use TwistStamped. Infrastructure uses ROS domain 61; a gateway relays permitted data to domain 62. The referee measures simulation time, ground-truth travel, wall-contact episodes and full-footprint exit crossing. Larger layouts may require longer routes than a controller can finish in 300 seconds; geometric reachability does not guarantee completion within the time budget.
+**Four recorded development samples** used the same solver/configuration, requested RTF 2 and a 300 simulated-second limit:
 
-Isolation is a challenge rule and logical separation, not an OS security sandbox. The solver uses only the sensor-side ROS domain; the referee uses simulator ground truth to score the outcome.
+| Maze side | Grid | Seed | Escaped | Simulated time | Travel | Contacts |
+| --- | --- | --- | --- | ---: | ---: | ---: |
+| 12 m | 6×6 | 198382678 | Yes | 91.9 s | 20.9 m | 0 |
+| 12 m | 8×8 | 109460176 | Yes | 75.7 s | 16.5 m | 0 |
+| 16 m | 8×8 | 1773841193 | Yes | 199.6 s | 49.3 m | 0 |
+| 16 m | 10×10 | 1631833898 | Yes | 152.4 s | 34.4 m | 0 |
 
-## Validation and attribution
+These are one seed per combination, not a general success-rate estimate or a density ranking. The generator currently keeps the exit on the east boundary; the solver does not receive that information. [Recorded seeds, scores and source hashes](docs/randomized_grid_results.json) · [Validation history](docs/VALIDATION.md).
+
+## Code and experiment data
+
+```text
+ail_tb4_maze/          Mapping, planning, motion, GUI, gateway and referee
+launch/               Setup, navigation and visualization launches
+config/               SLAM, navigation, RViz and challenge settings
+examples/             Minimal replacement-controller template
+navigation_interface/ Default entry point and comparison baseline
+assets/, worlds/      Local textures, geometry and upstream world licenses
+scripts/, test/       Experiment runners, validation helpers and regressions
+docs/                 Algorithm guide, integration guide, media and results
+.runtime/             Local scenes, logs and raw experiment evidence (Git-ignored)
+.tools/               Local dependency fallbacks (Git-ignored)
+```
+
+Results live under `.runtime/results/experiment_*/` in a source checkout. Installed-only packages use `$XDG_STATE_HOME/ail_tb4_maze`, normally `~/.local/state/ail_tb4_maze`. The setup launch supports a `runtime_dir` override. Normal ROS `build/`, `install/` and `log/` directories remain at workspace level.
+
+The independent referee uses Gazebo pose/contact data to score full-footprint exit crossing, distance and contact episodes. Contacts are counted; a successful crossing does not automatically require zero contacts. ROS-domain separation is a logical interface rule, not an OS security sandbox.
+
+## Development and checks
 
 ```bash
 colcon test --packages-select ail_tb4_maze
 colcon test-result --verbose
 ```
 
-See [docs/VALIDATION.md](docs/VALIDATION.md) for test coverage and known limitations. Live maze replacement, preview synchronization, collision/exit scoring and the original 300-second timeout were exercised. Texture licenses are in docs/TEXTURE_ATTRIBUTION.md; maze provenance is in docs/MAZE_SELECTION.md and worlds/LICENSE.upstream. Project code uses Apache-2.0.
+Python follows the project Ruff formatter and PEP 8-oriented lint rules: four-space indentation, separated imports, readable blocks and an 88-character line limit. To use the pinned development tool in an isolated environment:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/ruff check .
+.venv/bin/ruff format --check .
+```
+
+Keep a fixed seed, grid, speed cap and time budget when comparing algorithms. Report failures as well as successes, distinguish simulated time from wall time, and retain the raw result alongside any edited video. See [validation notes](docs/VALIDATION.md) for the tested scope and known limitations.
+
+## License and attribution
+
+Project code: [Apache-2.0](LICENSE). Robot, ROS and Gazebo components retain their upstream licenses. Texture sources/licenses are in [TEXTURE_ATTRIBUTION.md](docs/TEXTURE_ATTRIBUTION.md); world provenance is in [MAZE_SELECTION.md](docs/MAZE_SELECTION.md) and [worlds/LICENSE.upstream](worlds/LICENSE.upstream).

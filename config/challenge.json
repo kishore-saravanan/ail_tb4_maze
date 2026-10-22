@@ -1,7 +1,7 @@
 {
   "world": "maze_escape",
   "robot": "turtlebot4",
-  "time_limit": 300.0,
+  "time_limit": 0.0,
   "footprint_radius": 0.23,
   "bounds": [
     -10,

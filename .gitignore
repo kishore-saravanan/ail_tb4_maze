@@ -1,5 +1,9 @@
 .runtime/
 .tools/
+.venv/
+.ruff_cache/
+/tools/maze2d/
+/scripts/benchmark_exploration.py
 build/
 install/
 log/

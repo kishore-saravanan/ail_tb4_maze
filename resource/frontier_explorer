@@ -1,0 +1,4 @@
+#!/usr/bin/python3
+from ail_tb4_maze.frontier_node import main
+
+main()
